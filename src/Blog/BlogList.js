@@ -72,16 +72,6 @@ const ArticleList = () => {
           );
         })}
       </section>
-
-      <footer className="page-footer">
-        <a
-          href="https://twitter.com/thecodeangle"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Follow us on Twitter
-        </a>
-      </footer>
     </main>
   );
 };

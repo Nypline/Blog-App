@@ -65,16 +65,6 @@ const ArticleDetail = () => {
           <ReactMarkdown>{postContent}</ReactMarkdown>
         </div>
       </article>
-
-      <footer className="article-footer">
-        <a
-          href="https://twitter.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Follow on Twitter
-        </a>
-      </footer>
     </main>
   );
 };
