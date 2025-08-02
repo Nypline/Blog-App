@@ -1,75 +1,89 @@
-import React, { useEffect, useState } from 'react'
-import { createClient } from "contentful"
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { createClient } from "contentful";
+import { Link } from "react-router-dom";
 
-const BlogList = () => {
-  const [blogPosts, setBlogPosts] = useState([])
-  const client = createClient({ space: "9cbe8t5ezxep", accessToken: "nAs6nVtKP9k0ZKhD-M8PBRhrwd-UNxWLi6GciYQg0Cw" })
-
+const ArticleList = () => {
+  const [articles, setArticles] = useState([]);
+  const contentfulClient = createClient({
+    space: "9cbe8t5ezxep",
+    accessToken: "nAs6nVtKP9k0ZKhD-M8PBRhrwd-UNxWLi6GciYQg0Cw",
+  });
 
   useEffect(() => {
-    const getAllEntries = async () => {
+    const fetchArticles = async () => {
       try {
-        await client.getEntries().then((entries) => {
-          setBlogPosts(entries)
-        })
-      } catch (error) {
-        console.log(`Error fetching authors ${error}`);
+        const response = await contentfulClient.getEntries();
+        setArticles(response?.items || []);
+      } catch (err) {
+        console.error("Failed to load articles:", err);
       }
     };
-    getAllEntries()
-  }, [])
 
+    fetchArticles();
+  }, []);
 
+  const formatDate = (dateStr) => {
+    return new Intl.DateTimeFormat("en-GB", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    }).format(new Date(dateStr));
+  };
 
   return (
-    <div id="layout" className="pure-g">
-      <div className="content pure-u-1 pure-u-md-3-4">
-        <div>
-          <div className="posts">
-            <h1 className="content-subhead">Web Dev Blog</h1>
+    <main className="grid-container">
+      <section className="article-list">
+        <h2 className="section-title">Latest Articles</h2>
 
-            {blogPosts?.items?.map((post) => (
-              <section className="post" key={post.sys.id}>
-                <header className="post-header">
-                  <img src={post.fields.blogImage.fields.file.url} title="" alt={post.fields.title} width="578" height="291" />
-                  <h2 className="post-title pt-3">{post.fields.title}</h2>
-                  <p className="post-meta">
-                    By <a href="https://thecodeangle.com/" className="post-author">{post.fields.blogAuthor}</a> Date <span></span>
-                    <small>
-                      {new Intl.DateTimeFormat('en-GB', {
-                        month: 'long',
-                        day: '2-digit',
-                        year: 'numeric',
-                      }).format(new Date(post.fields.createDate))}
-                    </small>
-                  </p>
-                </header>
-                <div className="post-description">
-                  <p>{post.fields.blogSummary}
-                  </p>
-                  <Link
-                    to={`/blogDetails/${post.sys.id}`}
-                    className="button button1">
-                    Read More
-                  </Link>
-                </div>
-              </section>
-            ))}
-          </div>
+        {articles.length === 0 && <p>No articles available.</p>}
 
+        {articles.map((item) => {
+          const { title, blogSummary, blogAuthor, blogImage, createDate } =
+            item.fields;
+          const imageUrl = blogImage?.fields?.file?.url;
 
-          <div className="footer">
-            <div className="pure-menu pure-menu-horizontal">
-              <div className="pure-menu-item">
-                <a href="http://twitter.com/thecodeangle" className="pure-menu-link">Twitter</a>
+          return (
+            <article className="article-card" key={item.sys.id}>
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  className="article-image"
+                  width="100%"
+                />
+              )}
+
+              <div className="article-content">
+                <h3>{title}</h3>
+                <p className="meta">
+                  <span>By {blogAuthor}</span> •{" "}
+                  <span>{formatDate(createDate)}</span>
+                </p>
+                <p>{blogSummary}</p>
+
+                <Link
+                  to={`/blogDetails/${item.sys.id}`}
+                  className="read-more-btn"
+                >
+                  Read More →
+                </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+            </article>
+          );
+        })}
+      </section>
 
-export default BlogList
+      <footer className="page-footer">
+        <a
+          href="https://twitter.com/thecodeangle"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Follow us on Twitter
+        </a>
+      </footer>
+    </main>
+  );
+};
+
+export default ArticleList;
